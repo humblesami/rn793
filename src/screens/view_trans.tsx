@@ -406,7 +406,7 @@ class ListTransactions extends AbstractScreen {
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'android' ? 80 : 0}>
+          keyboardVerticalOffset={Platform.OS === 'android' ? 90 : 0}>
           {this.conditional_view_type()}
         </KeyboardAvoidingView>
       </SafeAreaView>

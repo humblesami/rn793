@@ -57,6 +57,17 @@ function MainApp() {
             }}
           />
         )}
+        {__DEV__ && (
+          <Tab.Screen
+            name="Sample"
+            component={SampleScreen}
+            options={{
+              tabBarIcon: () => <IconSvg icon={SvgIcons.tools_icon} />,
+              tabBarLabel: 'Sample',
+              title: 'Sample',
+            }}
+          />
+        )}
         <Tab.Screen
           name="Categories"
           component={ListCategories}

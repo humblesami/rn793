@@ -6,6 +6,7 @@ import {
   Text,
   Platform,
   KeyboardAvoidingView,
+  TextInput,
 } from 'react-native';
 import PaginationView from '../components/PaginationView';
 import { styles } from '../components/ComponentStyles';
@@ -19,42 +20,45 @@ const SampleScreen = () => {
     },
   };
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={{ flex: 1, padding: 10 }}>
       <KeyboardAvoidingView
-        style={styles.keyboardAvoid}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        {/* Fixed Top Area */}
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Fixed Top Area</Text>
-          <PaginationView
-            given_limit={obj_it.page_data.per_page}
-            offset={obj_it.page_data.offset}
-            total_records={obj_it.page_data.record_count}
-            onStartIndexChanged={async (off_set: number) => {
-              obj_it.page_data.offset = off_set;
-              //obj_it.fetchMyData();
-            }}
-            onLimitChanged={async (
-              off_set: number,
-              records_on_page: number,
-            ) => {
-              obj_it.page_data.per_page = records_on_page;
-              obj_it.page_data.offset = off_set;
-              //obj_it.fetchMyData();
-            }}
-          />
-        </View>
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'android' ? 90 : 0}>
 
-        {/* Scrollable Area */}
         <ScrollView
           contentContainerStyle={styles.scrollContent}
+          
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
           {Array.from({ length: 30 }).map((_, i) => (
             <View key={i} style={styles.item}>
-              <Text>Scrollable Item {i + 1}</Text>
+              {
+                i == 5 ? 
+                <>
+                  <Text style={styles.h5}>Nested Scrolls</Text>
+                  <ScrollView
+                  style={{borderWidth: 2, borderColor: 'green' ,maxHeight: 200}}
+                  contentContainerStyle={styles.scrollContent}
+                  nestedScrollEnabled={true}
+                  keyboardShouldPersistTaps="handled"
+                  showsVerticalScrollIndicator={false}>
+                    {Array.from({ length: 20 }).map((_, i1) => (
+                      <View key={i1} style={styles.item}>
+                        {
+                          <Text>Scrollable Item {i1 + 1}</Text>
+                        }                      
+                      </View>
+                    ))}
+                    <TextInput style={styles.border}/>
+                  </ScrollView>
+                </> :
+                <Text>Scrollable Item {i + 1}</Text>
+              }
+              
             </View>
           ))}
+          <TextInput style={styles.border}/>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

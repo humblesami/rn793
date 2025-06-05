@@ -332,6 +332,7 @@ class SamSelect2Class extends Component<SamSelect2Props, Select2State> {
           </Pressable>
           <ScrollView
             keyboardShouldPersistTaps="handled"
+            nestedScrollEnabled={true}
             style={s2Styles.listContainer}>
             {filteredOptions.map((listItem, index) => (
               <Pressable

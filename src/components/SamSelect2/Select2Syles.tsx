@@ -11,6 +11,7 @@ const s2Styles = StyleSheet.create({
   cancelBtn: {
     padding: 5,
     borderRadius: 2,
+    width:'80%',
     backgroundColor: 'red',
   },
   selectedItemStyle: {
@@ -52,6 +53,7 @@ const s2Styles = StyleSheet.create({
   },
   listContainer: {
     maxHeight: 200,
+    width: '80%'
   },
 });
 
