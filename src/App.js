@@ -2,7 +2,6 @@ import React from 'react';
 import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import OverlayScreen from './screens/OverlayScreen';
 import { ListCategories } from './screens/view_cats';
 import { ListTransactions } from './screens/view_trans';
 import { IconSvg } from './components/IconSvg';
@@ -35,9 +34,9 @@ function get_tab_options(
 
 function MainApp() {
   initDB();
-  const colorScheme = useColorScheme(); 
+  const colorScheme = useColorScheme();
   return (
-    <NavigationContainer theme={colorScheme == 'dark' ? DarkTheme: DefaultTheme}>
+    <NavigationContainer theme={colorScheme == 'dark' ? DarkTheme : DefaultTheme}>
       <Tab.Navigator initialRouteName="Transactions">
         <Tab.Screen
           name="Transactions"

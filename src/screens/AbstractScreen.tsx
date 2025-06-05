@@ -1,12 +1,13 @@
-import React, {Component, ReactNode} from 'react';
-import {View, Text, Button, ScrollView, Dimensions} from 'react-native';
-import {PropsType, BaseState} from '../types';
-const {width: windowWidth, height: windowHeight} = Dimensions.get('window');
+import React, { Component, ReactNode } from 'react';
+import { View, Text, Button, ScrollView, Dimensions } from 'react-native';
+import { PropsType, BaseState } from '../types';
+import PopupOverlay from '../components/Overlay';
+const { width: windowWidth, height: windowHeight } = Dimensions.get('window');
 
 export default class AbstractScreen extends Component<PropsType, BaseState> {
   protected id: string;
   protected current_route: string = '';
-  protected goto: (route: string) => void = () => {};
+  protected goto: (route: string) => void = () => { };
   constructor(props: PropsType, child_id = 'none') {
     super(props);
     this.state = {
@@ -45,7 +46,7 @@ export default class AbstractScreen extends Component<PropsType, BaseState> {
   private unsubscribeFocusListener: any; // Store the listener for cleanup
 
   componentDidMount() {
-    const {navigation} = this.props;
+    const { navigation } = this.props;
     this.unsubscribeFocusListener = navigation.addListener('focus', () => {
       if (!this.mounted) {
         this.mounted = 1;
@@ -114,6 +115,18 @@ export default class AbstractScreen extends Component<PropsType, BaseState> {
     return res;
   }
 
+  _renderLoader() {
+    let obj_it = this;
+    if (this.state.data_loading && this.state.data_loading != 'done') {
+      return (<PopupOverlay message={this.state.data_loading}
+        onHide={() => { obj_it.setState({ data_loading: '' }) }}
+        visible={true} />)
+    } else {
+      <></>
+    }
+
+  }
+
   _render_messages(
     lines: Record<string, string>,
     heading: string,
@@ -124,21 +137,21 @@ export default class AbstractScreen extends Component<PropsType, BaseState> {
     if (!error_keys.length) return null;
     return (
       <ScrollView
+        nestedScrollEnabled={true}
         keyboardShouldPersistTaps="handled"
         style={[
-          {marginTop: 3, maxHeight: windowHeight - 100, paddingBottom: 0},
+          { marginTop: 3, maxHeight: windowHeight - 100, paddingBottom: 0 },
         ]}>
-        <View style={{backgroundColor: '#ddd', width: '100%'}}>
-          <Text style={{padding: 5, fontSize: 18, borderColor: '#eee'}}>
+        <View style={{ backgroundColor: '#ddd', width: '100%' }}>
+          <Text style={{ padding: 5, fontSize: 18, borderColor: '#eee' }}>
             {heading} ({error_keys.length})
           </Text>
         </View>
         <View>
           {error_keys.map((item, i) => {
             return (
-              <View
-                key={i}
-                style={{marginBottom: 5, backgroundColor: font_color}}>
+              <View key={i}
+                style={{ marginBottom: 5, backgroundColor: font_color }}>
                 <Text
                   style={[
                     {

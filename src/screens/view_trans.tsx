@@ -1,16 +1,7 @@
 import React from 'react';
 import {
-  Alert,
-  Text,
-  TextInput,
-  View,
-  ScrollView,
-  Platform,
-  KeyboardAvoidingView,
-  SafeAreaView,
-  TouchableWithoutFeedback,
-  Keyboard,
-  Button,
+  Alert, Text, TextInput, View, ScrollView, Platform,
+  KeyboardAvoidingView, SafeAreaView,
 } from 'react-native';
 import { StyleSheet } from 'react-native';
 import SamDateTime from '../services/SamDateTime';
@@ -29,6 +20,7 @@ import DateTimeSelector from '../components/SamDatePicker';
 import { IconButton } from '../components/IconButton';
 import { SvgIcons } from '../icons';
 import { Toggler } from '../components/Switch';
+import PopupOverlay from '../components/Overlay';
 
 
 class ListTransactions extends AbstractScreen {
@@ -47,7 +39,6 @@ class ListTransactions extends AbstractScreen {
     this.service = new TransactionsListUtils();
     this.state = {
       ...this.state,
-      data_loading: 'Loading Transactions',
       editMode: 0,
       touch_count: 0,
       page_data: {
@@ -176,10 +167,11 @@ class ListTransactions extends AbstractScreen {
                 onPress={() => obj_it.service.deleteRecord(obj_it, editRow)}
                 title="Delete"
               />
-              <CompButton
+              {__DEV__ && <CompButton
                 onPress={() => obj_it.service.duplicateRecord(obj_it, editRow)}
                 title="Duplicate"
-              />
+              />}
+
               <CompButton
                 onPress={() =>
                   obj_it.service.updateTransaction(obj_it, editRow)
@@ -242,17 +234,18 @@ class ListTransactions extends AbstractScreen {
             </View>
             {
               obj_it.state.showChildren ? <View style={[{ padding: 2 }, styles.wrap]}>
-              {item.related_categories.map(function (item: any, key: any) {
-                return (
-                  <View key={key}
-                    style={[styles.border, { padding: 3, marginRight: 1,
-                       marginBottom: 1, borderWidth: 1,
-                       }]}>
-                    <Text>{item.title}  </Text>
-                  </View>
-                );
-              })}
-            </View>:<></>
+                {item.related_categories.map(function (item: any, key: any) {
+                  return (
+                    <View key={key}
+                      style={[styles.border, {
+                        padding: 3, marginRight: 1,
+                        marginBottom: 1, borderWidth: 1,
+                      }]}>
+                      <Text>{item.title}  </Text>
+                    </View>
+                  );
+                })}
+              </View> : <></>
             }
           </View>
         ))}
@@ -281,15 +274,16 @@ class ListTransactions extends AbstractScreen {
         {/* <DateTimeSelector onChangeDateTime={() => { }} /> */}
         <FlexView>
           <CompButton onPress={() => obj_it.callEditing()} title="Add New" />
-            <FlexView>
-              <Text>Show Categries</Text>
-            <Toggler value={this.state.showChildren} onChange={()=>{
-              obj_it.setState({showChildren: !obj_it.state.showChildren})
+
+          <FlexView>
+            <Text>Show Categries</Text>
+            <Toggler value={this.state.showChildren} onChange={() => {
+              obj_it.setState({ showChildren: !obj_it.state.showChildren })
             }} />
-            </FlexView>
-            
+          </FlexView>
+
         </FlexView>
-        
+
         <View style={[styles.flexContainer, { paddingTop: 10 }]}>
           {obj_it.headers.map((cell_data, i) => (
             <View
@@ -322,6 +316,7 @@ class ListTransactions extends AbstractScreen {
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={Platform.OS === 'android' ? 90 : 0}>
+          {this._renderLoader()}
           {this.conditional_view_type()}
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -348,14 +343,17 @@ class TransactionsListUtils {
   public defaultStartDate: Date = SamDateTime.addInterval(-30, 'day');
 
   async fetchScreenData(caller_ob: any, edit_mode = 0) {
+    if (!caller_ob.state.data_loading) {
+      caller_ob.setState({ data_loading: 'Loading transactions' });
+    }
+    let mapped_data = [];
     try {
       let startTime = this.defaultStartDate.getTime();
       const filters = [['created_at', '>=', startTime]];
       let params = {
         paging: caller_ob.state.page_data,
       };
-      let mapped_data =
-        (await ExpenseDb.getTransactions(params, filters)) || [];
+      mapped_data = (await ExpenseDb.getTransactions(params, filters)) || [];
 
       if (edit_mode == -1) {
         this.defaultCategories = await ExpenseDb.searchCategories({
@@ -364,13 +362,13 @@ class TransactionsListUtils {
         edit_mode = 0;
       }
       //console.log(edit_mode, "getting transactions", mapped_data);
-      caller_ob.setState({ objects_list: mapped_data, editMode: edit_mode });
+
     } catch (err) {
       console.log(err);
       let message = 'Error in obtaining transactions => ' + err;
       caller_ob.issues['init'] = message;
-      console.log(message);
     }
+    caller_ob.setState({ data_loading: '', objects_list: mapped_data, editMode: edit_mode });
   }
 
   async updateRow(row_data: any, params: any) {
@@ -394,20 +392,21 @@ class TransactionsListUtils {
   }
 
   async deleteRecord(caller_ob: any, row_data: Record<string, any>) {
+    caller_ob.setState({ data_loading: 'Deleting Transactions' });
     let res = await ExpenseDb.deleteRecords('transactions', [
       ['id', '=', row_data.id],
     ]);
     if (res.rowsAffected) {
       res = await this.fetchScreenData(caller_ob, 0);
       return res;
+    } else {
+      caller_ob.issues['deleting'] = 'Could not delete'
+      caller_ob.setState({ data_loading: '' });
     }
   }
 
-  async updateTransaction(
-    caller_ob: any,
-    row_data: Record<string, any>,
-    avoid_reload = 0,
-  ) {
+  async updateTransaction(caller_ob: any, row_data: Record<string, any>) {
+    caller_ob.setState({ data_loading: 'Updating Transactions' });
     delete row_data['created_at'];
     delete row_data['related_categories'];
     row_data['updated_at'] = new Date().getTime();
@@ -416,6 +415,9 @@ class TransactionsListUtils {
     ]);
     if (res.rowsAffected) {
       await this.fetchScreenData(caller_ob, -1);
+    } else {
+      caller_ob.issues['updating'] = 'Could not update'
+      caller_ob.setState({ data_loading: '' });
     }
   }
 

@@ -1,13 +1,7 @@
 import React from 'react';
 import {
-  View,
-  Pressable,
-  ScrollView,
-  Text,
-  Alert,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
+  Text, View, ScrollView, Pressable,
+  KeyboardAvoidingView, SafeAreaView, Button,
 } from 'react-native';
 import AbstractScreen from './AbstractScreen';
 import SamDateTime from '../services/SamDateTime';
@@ -36,45 +30,49 @@ class ListCategories extends AbstractScreen {
     this.state = {
       ...this.state,
       load_count: 0,
-      data_loading: 'Loading Categories',
+      data_loading: '',
     };
   }
 
   async fetchMyData() {
+    if (!this.state.data_loading) {
+      this.setState({ data_loading: 'Loading Categories' });
+    }
+    let res = [];
     try {
       let startTime = Date.now() - 1000 * 60 * 60 * 24 * 5;
       if (this.props.defaultDateFrom) {
         startTime = this.props.defaultDateFrom.getTime();
       }
-      let res = await ExpenseDb.readCategoriesSummary({
+      res = await ExpenseDb.readCategoriesSummary({
         paging: this.page_data,
       });
-      this.setState({ data_loading: '', objects_list: res });
     } catch (err) {
       let message = 'Error in getting categories ' + err;
       this.issues['screen_data'] = message;
     }
+    this.setState({ data_loading: '', objects_list: res });
   }
 
-  async deleleCategory(itemData: Record<string, any>, index: number) {
+  async deleleCategory(itemData: Record<string, any>) {
+    this.setState({ data_loading: 'Deleting Category' });
     let obj_it = this;
     try {
       let res = await ExpenseDb.deleteRecords('categories', [
         ['id', '=', itemData.id],
       ]);
-      if (res.rowsAffected) {
-        obj_it.state.objects_list.splice(index, 1);
-      } else {
+      if (!res.rowsAffected) {
         obj_it.issues['delete_categroy'] = 'Error in delete';
       }
     } catch (err) {
       obj_it.issues['delete_categroy'] = 'Error in force del cat ' + err;
     }
-    obj_it.setState({});
+    this.fetchMyData();
   }
 
   async showChildren(cat_item: CategoryModel, col_ratio: any = []) {
     if (cat_item.trans_count && !cat_item.transaction_list) {
+      this.setState({ data_loading: 'Loading Child Transactions' });
       cat_item.transaction_list = await ExpenseDb.getCategoryTransactions(
         cat_item.id,
       );
@@ -84,7 +82,7 @@ class ListCategories extends AbstractScreen {
     } else {
       cat_item.show_children = true;
     }
-    this.setState({ load_count: this.state.load_count + 1 });
+    this.setState({ data_loading: '', load_count: this.state.load_count + 1 });
   }
 
   displayTransactions(cat_item: CategoryModel, col_ratio: any = []) {
@@ -107,15 +105,6 @@ class ListCategories extends AbstractScreen {
   render() {
     let obj_it = this;
     let allCategories = obj_it.state.objects_list;
-    // console.log('ctaegries', allCategories);
-    if (this.state.data_loading) {
-      return (
-        <View style={{ padding: 20 }}>
-          <Text style={{ fontSize: 20 }}>{this.state.data_loading}</Text>
-        </View>
-      );
-    }
-
     let a_month_earlier = SamDateTime.addInterval(-30, 'day') || new Date();
     let column_ratio: any[] = ['40%', '25%', '35%'];
     const headers = ['Name', 'Amount', 'Count'];
@@ -124,6 +113,9 @@ class ListCategories extends AbstractScreen {
         <KeyboardAvoidingView style={styles.keyboardAvoid}>
           {obj_it.render_errors()}
           {obj_it.render_messages()}
+          {this._renderLoader()}
+          <Button title='Show Loader' onPress={() => obj_it.setState({ 'data_loading': 'testing' })} />
+          <Button title='Hide Loader' onPress={() => obj_it.setState({ 'data_loading': '' })} />
           <PaginationView
             given_limit={obj_it.page_data.per_page}
             offset={obj_it.page_data.offset}
@@ -141,12 +133,6 @@ class ListCategories extends AbstractScreen {
               obj_it.fetchMyData();
             }}
           />
-
-          <View style={[styles.flex]}>
-            <Text style={[styles.h5, { width: column_ratio[0] }]}>Name</Text>
-            <Text style={[styles.h5, { width: column_ratio[1] }]}>Amount</Text>
-            <Text style={[styles.h5, { width: column_ratio[2] }]}>Count</Text>
-          </View>
 
           <View style={[styles.flexContainer, { paddingTop: 10 }]}>
             {headers.map((cell_data, i) => (
@@ -172,10 +158,10 @@ class ListCategories extends AbstractScreen {
                       style={[styles.listItemText, { width: column_ratio[1] }]}>
                       {cat_item.total_amount}
                     </Text>
-                    <View style={[{flex:1, paddingRight: 5}]}>
+                    <View style={[{ flex: 1, paddingRight: 5 }]}>
                       {cat_item.trans_count ? (
                         <Pressable
-                          style={[ styles.border, { paddingHorizontal: 5, alignSelf:'flex-end' }]}
+                          style={[styles.border, { paddingHorizontal: 5, alignSelf: 'flex-end' }]}
                           onPress={() => {
                             obj_it.showChildren(cat_item);
                           }}>
@@ -183,15 +169,15 @@ class ListCategories extends AbstractScreen {
                         </Pressable>
                       ) : (
                         <Pressable
-                          style={[ styles.border, { paddingRight: 5, alignSelf:'flex-end' }]}
-                          onPress={() => obj_it.deleleCategory(cat_item, index)}>
+                          style={[styles.border, { paddingRight: 5, alignSelf: 'flex-end' }]}
+                          onPress={() => obj_it.deleleCategory(cat_item)}>
                           <IconSvg
                             icon={SvgIcons.trash_icon}
                             color="red"
                             size={24}
                             style={{ alignSelf: 'flex-end', border: 1, borderColor: 'white' }}
                           />
-                        </Pressable>                      
+                        </Pressable>
                       )}
                     </View>
                   </View>
