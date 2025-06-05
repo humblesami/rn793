@@ -1,4 +1,9 @@
 {
-  "name": "mwrn",
-  "displayName": "mwrn"
+	"name": "mwrn",
+	"displayName": "mwrn",
+	"extra": {
+		"eas": {
+			"projectId": "3568bccb-3765-48ad-a5ed-b755fbdc1265"
+		}
+	}
 }
