@@ -207,7 +207,7 @@ class ListTransactions extends AbstractScreen {
         showsVerticalScrollIndicator={false}>
         {obj_it.state.objects_list.map((item: any, key: any) => (
           <View key={key}>
-            <View style={[styles.flexContainer, local_styles.trans_row]}>
+            <View style={[styles.flexContainer, styles.listItem]}>
               <View style={[styles.editRowCell, { width: obj_it.col_ratio[0] }]}>
                 <Text style={[styles.bold]}>{item.amount}</Text>
               </View>
@@ -325,11 +325,6 @@ class ListTransactions extends AbstractScreen {
 }
 
 const local_styles = StyleSheet.create({
-  trans_row: {
-    borderColor: '#bbb',
-    borderRadius: 5,
-    borderWidth: 1,
-  },
   cell: {
     verticalAlign: 'middle',
     borderColor: '#ddd',

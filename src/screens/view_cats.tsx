@@ -114,8 +114,6 @@ class ListCategories extends AbstractScreen {
           {obj_it.render_errors()}
           {obj_it.render_messages()}
           {this._renderLoader()}
-          <Button title='Show Loader' onPress={() => obj_it.setState({ 'data_loading': 'testing' })} />
-          <Button title='Hide Loader' onPress={() => obj_it.setState({ 'data_loading': '' })} />
           <PaginationView
             given_limit={obj_it.page_data.per_page}
             offset={obj_it.page_data.offset}
