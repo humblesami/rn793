@@ -157,6 +157,13 @@ class SamSelect2Class extends Component<SamSelect2Props, Select2State> {
     this.researchItems(args, 'Item chosen');
   }
 
+  setInputText(txt: string = '') {
+    this.inputElementRef.value = txt;
+    if (this.inputElementRef.setNativeProps) {
+      this.inputElementRef.setNativeProps({ text: txt });
+    }
+  }
+
   async researchItems(temp_updates = {}, from_point = '') {
     let obj_it = this;
     let display_field = this.attributes.displayField;
@@ -175,14 +182,8 @@ class SamSelect2Class extends Component<SamSelect2Props, Select2State> {
       local_updates.searchedItems = filterd_options;
 
     let updates_now = { ...temp_updates, ...local_updates };
-    //console.log(from_point, updates_now);
     this.setTheState(updates_now, from_point, function () {
-      //obj_it.inputElementRef.focus();
-      obj_it.inputElementRef.value = '';
-      if (obj_it.inputElementRef.setNativeProps) {
-        obj_it.inputElementRef.setNativeProps({ text: '' });
-        //obj_it.inputElementRef.setNativeProps({ focus: true });
-      }
+      obj_it.setInputText('');
     });
   }
 
@@ -397,7 +398,7 @@ class SamSelect2Class extends Component<SamSelect2Props, Select2State> {
       textProps[kv.key] = kv.val;
     });
     textProps['style'] = this.attributes.styling.input;
-    return <TextInput {...textProps} />;
+    return <TextInput {...textProps} value={this.state.searchText} />;
   }
 
   render() {

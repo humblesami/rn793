@@ -1,5 +1,5 @@
 import React from 'react';
-import { DarkTheme, NavigationContainer } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import OverlayScreen from './screens/OverlayScreen';
@@ -35,7 +35,7 @@ function get_tab_options(
 function MainApp() {
   initDB();
   return (
-    <NavigationContainer theme={DarkTheme}>
+    <NavigationContainer theme={DefaultTheme}>
       <Tab.Navigator initialRouteName="Transactions">
         <Tab.Screen
           name="Transactions"

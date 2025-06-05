@@ -11,7 +11,7 @@ const ExpenseDb = {
     let placeholders = Array(cols_arr.length).fill('?');
     let query_str = `insert into transactions (${cols_arr.join(',')}) values (${placeholders})`;
     let result = await executeQuery(query_str, values);
-    console.log(values, query_str, result);
+    //console.log(values, query_str, result);
     if (cat_ids.length) {
       const transactionId = result.insertId;
       await this.createTransCats(transactionId, cat_ids);
