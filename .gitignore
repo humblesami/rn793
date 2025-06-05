@@ -1,7 +1,15 @@
 # OSX
 #
 .DS_Store
-
+.vscode
+.bundle
+android/app/my-release-key.keystore
+*.keystore
+*.jks
+*.apks
+*.aab
+.env
+.env.*
 # Xcode
 #
 build/
