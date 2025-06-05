@@ -1,4 +1,8 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, useColorScheme } from 'react-native';
+const colorScheme = useColorScheme;
+const colors = {
+  itemBorder: colorScheme == 'dark' ? 'white': '#ccc',
+}
 
 const styles = StyleSheet.create({
   rowContainer: {
@@ -69,24 +73,29 @@ const styles = StyleSheet.create({
     marginBottom: 3,
     justifyContent: 'space-between',
   },
+  tagContainer: {
+
+  },
+  tagItem: {
+    borderRadius: 2,
+    borderWidth: 1,
+    borderColor: colors.itemBorder,
+  },
   listItem: {
-    flex: 1,
     padding: 6,
     borderRadius: 4,
     borderWidth: 1,
     maxWidth: '100%',
     marginBottom: 2,
-    borderColor: '#ddd',
-    flexDirection: 'row',
+    borderColor: colors.itemBorder,
   },
   item: {
     padding: 16,
     marginBottom: 8,
-    backgroundColor: '#e8e8e8',
     borderRadius: 6,
   },
   pressableItem: {
-    borderColor: '#ddd',
+    borderColor: colors.itemBorder,
     borderWidth: 2,
     borderRadius: 5,
     marginBottom: 5,
@@ -176,6 +185,10 @@ const styles = StyleSheet.create({
   text: {
     color: 'green',
   },
+  editRowCell: {
+    paddingTop: 5,
+    paddingLeft: 5,
+  },
   btnText: {
     color: 'white',
   },
@@ -187,9 +200,9 @@ const styles = StyleSheet.create({
   listItemText: {
     fontSize: 16,
     paddingLeft: 5,
-  },
+  },  
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: 20,
   },
 });
-export { styles };
+export { styles, colors };

@@ -28,95 +28,13 @@ import { CategoryModel, TransactionModel } from '../db/expense/models';
 import DateTimeSelector from '../components/SamDatePicker';
 import { IconButton } from '../components/IconButton';
 import { SvgIcons } from '../icons';
+import { Toggler } from '../components/Switch';
 
-class TransactionsListUtils {
-  public defaultCategories: CategoryModel[] = [];
-  public defaultStartDate: Date = SamDateTime.addInterval(-30, 'day');
-
-  async fetchScreenData(caller_ob: any, edit_mode = 0) {
-    try {
-      let startTime = this.defaultStartDate.getTime();
-      const filters = [['created_at', '>=', startTime]];
-      let params = {
-        paging: caller_ob.state.page_data,
-      };
-      let mapped_data =
-        (await ExpenseDb.getTransactions(params, filters)) || [];
-
-      if (edit_mode == -1) {
-        this.defaultCategories = await ExpenseDb.searchCategories({
-          paging: caller_ob.state.page_data,
-        });
-        edit_mode = 0;
-      }
-      //console.log(edit_mode, "getting transactions", mapped_data);
-      caller_ob.setState({ objects_list: mapped_data, editMode: edit_mode });
-    } catch (err) {
-      console.log(err);
-      let message = 'Error in obtaining transactions => ' + err;
-      caller_ob.issues['init'] = message;
-      console.log(message);
-    }
-  }
-
-  async updateRow(row_data: any, params: any) {
-    Object.assign(row_data, params);
-  }
-
-  async createTransaction(caller_ob: any, row_data: any) {
-    caller_ob.setState({ data_loading: 'creating transaction' });
-    let trans_data = {
-      amount: row_data.amount,
-      title: row_data.title,
-    };
-    let categories_data = row_data.related_categories || [];
-    const cat_ids = categories_data.map(function (item: any) {
-      return item.id;
-    });
-
-    let res = await ExpenseDb.createTransaction(trans_data, cat_ids);
-    await this.fetchScreenData(caller_ob, -1);
-    return res;
-  }
-
-  async deleteRecord(caller_ob: any, row_data: Record<string, any>) {
-    let res = await ExpenseDb.deleteRecords('transactions', [
-      ['id', '=', row_data.id],
-    ]);
-    if (res.rowsAffected) {
-      res = await this.fetchScreenData(caller_ob, 0);
-      return res;
-    }
-  }
-
-  async updateTransaction(
-    caller_ob: any,
-    row_data: Record<string, any>,
-    avoid_reload = 0,
-  ) {
-    delete row_data['created_at'];
-    delete row_data['related_categories'];
-    row_data['updated_at'] = new Date().getTime();
-    const res = await ExpenseDb.updateRecords('transactions', row_data, [
-      ['id', '=', row_data.id],
-    ]);
-    if (res.rowsAffected) {
-      await this.fetchScreenData(caller_ob, -1);
-    }
-  }
-
-  async duplicateRecord(caller_ob: any, row_data: Record<string, any>) {
-    delete row_data['id'];
-    delete row_data['created_at'];
-    let res = await this.createTransaction(caller_ob, row_data);
-    return res;
-  }
-}
 
 class ListTransactions extends AbstractScreen {
   private service: TransactionsListUtils;
-  protected headers: string[] = ['Rs', 'Categories', 'Title', 'Time', 'Edit'];
-  protected col_ratio: any[] = ['12%', '37%', '18.3%', '19.2%', '13.5%'];
+  protected headers: string[] = ['Rs', 'Title', 'Time', 'Edit'];
+  protected col_ratio: any[] = ['15%', '34%', '37%', '14%'];
 
   protected edit_row_data: Record<string, any> = {
     id: '',
@@ -288,7 +206,7 @@ class ListTransactions extends AbstractScreen {
     );
   }
 
-  listRenderer() {
+  listItems() {
     const obj_it = this;
     return (
       <ScrollView
@@ -296,59 +214,46 @@ class ListTransactions extends AbstractScreen {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
         {obj_it.state.objects_list.map((item: any, key: any) => (
-          <View
-            key={key}
-            style={[styles.flexContainer, local_styles.trans_row]}>
-            <View style={[{ width: obj_it.col_ratio[0] }, local_styles.cell]}>
-              <Text style={[styles.bold]}>{item.amount}</Text>
-            </View>
+          <View key={key}>
+            <View style={[styles.flexContainer, local_styles.trans_row]}>
+              <View style={[styles.editRowCell, { width: obj_it.col_ratio[0] }]}>
+                <Text style={[styles.bold]}>{item.amount}</Text>
+              </View>
 
-            <View
-              style={[
-                { padding: 2, width: obj_it.col_ratio[1] },
-                styles.wrap,
-                local_styles.cell,
-              ]}>
+              <View
+                style={[styles.editRowCell, { width: obj_it.col_ratio[1] }]}>
+                <Text>{'' + item.title}</Text>
+              </View>
+              <View
+                style={[styles.editRowCell, { width: obj_it.col_ratio[2] }]}>
+                <Text style={styles.time}>
+                  {item.created_at
+                    ? SamDateTime.formatViaLib(item.created_at, 'DD MMM, h:mm A')
+                    : 'TBA'}
+                </Text>
+              </View>
+
+              <View style={{ width: obj_it.col_ratio[3] }}>
+                <IconButton
+                  icon={SvgIcons.edit_icon}
+                  onPress={() => obj_it.callEditing(item)}
+                />
+              </View>
+            </View>
+            {
+              obj_it.state.showChildren ? <View style={[{ padding: 2 }, styles.wrap]}>
               {item.related_categories.map(function (item: any, key: any) {
                 return (
-                  <View
-                    key={key}
-                    style={[
-                      styles.border,
-                      { padding: 5, marginRight: 1, marginBottom: 1 },
-                    ]}>
-                    <Text>{item.title}</Text>
+                  <View key={key}
+                    style={[styles.border, { padding: 3, marginRight: 1,
+                       marginBottom: 1, borderWidth: 1,
+                       }]}>
+                    <Text>{item.title}  </Text>
                   </View>
                 );
               })}
-            </View>
-
-            <View
-              style={[
-                { padding: 4, width: obj_it.col_ratio[2] },
-                local_styles.cell,
-              ]}>
-              <Text>{'' + item.title}</Text>
-            </View>
-            <View
-              style={[
-                { padding: 4, width: obj_it.col_ratio[3] },
-                local_styles.cell,
-              ]}>
-              <Text style={styles.time}>
-                {item.created_at
-                  ? SamDateTime.formatViaLib(item.created_at, 'DD/M h:mmA')
-                  : 'TBA'}
-              </Text>
-            </View>
-
-            <View style={{ width: obj_it.col_ratio[4] }}>
-              <IconButton
-                icon={SvgIcons.edit_icon}
-                style={{ marginTop: 4 }}
-                onPress={() => obj_it.callEditing(item)}
-              />
-            </View>
+            </View>:<></>
+            }
           </View>
         ))}
       </ScrollView>
@@ -374,7 +279,17 @@ class ListTransactions extends AbstractScreen {
           }}
         />
         {/* <DateTimeSelector onChangeDateTime={() => { }} /> */}
-        <CompButton onPress={() => obj_it.callEditing()} title="Add New" />
+        <FlexView>
+          <CompButton onPress={() => obj_it.callEditing()} title="Add New" />
+            <FlexView>
+              <Text>Show Categries</Text>
+            <Toggler value={this.state.showChildren} onChange={()=>{
+              obj_it.setState({showChildren: !obj_it.state.showChildren})
+            }} />
+            </FlexView>
+            
+        </FlexView>
+        
         <View style={[styles.flexContainer, { paddingTop: 10 }]}>
           {obj_it.headers.map((cell_data, i) => (
             <View
@@ -384,7 +299,7 @@ class ListTransactions extends AbstractScreen {
             </View>
           ))}
         </View>
-        {this.listRenderer()}
+        {this.listItems()}
       </>
     );
   }
@@ -423,10 +338,93 @@ const local_styles = StyleSheet.create({
   cell: {
     verticalAlign: 'middle',
     borderColor: '#ddd',
-    paddingTop: 5,
-    paddingLeft: 2,
+    padding: 4,
     borderRightWidth: 1,
   },
 });
+
+class TransactionsListUtils {
+  public defaultCategories: CategoryModel[] = [];
+  public defaultStartDate: Date = SamDateTime.addInterval(-30, 'day');
+
+  async fetchScreenData(caller_ob: any, edit_mode = 0) {
+    try {
+      let startTime = this.defaultStartDate.getTime();
+      const filters = [['created_at', '>=', startTime]];
+      let params = {
+        paging: caller_ob.state.page_data,
+      };
+      let mapped_data =
+        (await ExpenseDb.getTransactions(params, filters)) || [];
+
+      if (edit_mode == -1) {
+        this.defaultCategories = await ExpenseDb.searchCategories({
+          paging: caller_ob.state.page_data,
+        });
+        edit_mode = 0;
+      }
+      //console.log(edit_mode, "getting transactions", mapped_data);
+      caller_ob.setState({ objects_list: mapped_data, editMode: edit_mode });
+    } catch (err) {
+      console.log(err);
+      let message = 'Error in obtaining transactions => ' + err;
+      caller_ob.issues['init'] = message;
+      console.log(message);
+    }
+  }
+
+  async updateRow(row_data: any, params: any) {
+    Object.assign(row_data, params);
+  }
+
+  async createTransaction(caller_ob: any, row_data: any) {
+    caller_ob.setState({ data_loading: 'creating transaction' });
+    let trans_data = {
+      amount: row_data.amount,
+      title: row_data.title,
+    };
+    let categories_data = row_data.related_categories || [];
+    const cat_ids = categories_data.map(function (item: any) {
+      return item.id;
+    });
+
+    let res = await ExpenseDb.createTransaction(trans_data, cat_ids);
+    await this.fetchScreenData(caller_ob, -1);
+    return res;
+  }
+
+  async deleteRecord(caller_ob: any, row_data: Record<string, any>) {
+    let res = await ExpenseDb.deleteRecords('transactions', [
+      ['id', '=', row_data.id],
+    ]);
+    if (res.rowsAffected) {
+      res = await this.fetchScreenData(caller_ob, 0);
+      return res;
+    }
+  }
+
+  async updateTransaction(
+    caller_ob: any,
+    row_data: Record<string, any>,
+    avoid_reload = 0,
+  ) {
+    delete row_data['created_at'];
+    delete row_data['related_categories'];
+    row_data['updated_at'] = new Date().getTime();
+    const res = await ExpenseDb.updateRecords('transactions', row_data, [
+      ['id', '=', row_data.id],
+    ]);
+    if (res.rowsAffected) {
+      await this.fetchScreenData(caller_ob, -1);
+    }
+  }
+
+  async duplicateRecord(caller_ob: any, row_data: Record<string, any>) {
+    delete row_data['id'];
+    delete row_data['created_at'];
+    let res = await this.createTransaction(caller_ob, row_data);
+    return res;
+  }
+}
 
 export { ListTransactions };

@@ -10,6 +10,7 @@ import { initDB } from './db/initdb';
 import SimpleView from './screens/view_setup';
 import { SvgIcons } from './icons';
 import SampleScreen from './screens/test';
+import { useColorScheme } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 function get_tab_options(
@@ -34,8 +35,9 @@ function get_tab_options(
 
 function MainApp() {
   initDB();
+  const colorScheme = useColorScheme(); 
   return (
-    <NavigationContainer theme={DefaultTheme}>
+    <NavigationContainer theme={colorScheme == 'dark' ? DarkTheme: DefaultTheme}>
       <Tab.Navigator initialRouteName="Transactions">
         <Tab.Screen
           name="Transactions"

@@ -18,7 +18,7 @@ import { PropsType } from '../types';
 import { ExpenseDb } from '../db/expense/expense_db';
 import { Pagination } from '../db/types';
 import SamDatePicker from '../components/SamDatePicker';
-import { styles } from '../components/ComponentStyles';
+import { colors, styles } from '../components/ComponentStyles';
 import { IconSvg } from '../components/IconSvg';
 import { SvgIcons } from '../icons';
 import { CategoryModel } from '../db/expense/models';
@@ -91,14 +91,14 @@ class ListCategories extends AbstractScreen {
     return cat_item.transaction_list.map((tr_item: any, index: number) => {
       return (
         <View
-          style={[{ padding: 5, marginVertical: 2 }, styles.border, styles.row]}
+          style={[styles.border, styles.row, { padding: 2, borderColor: 'green' }]}
           key={index}>
           <Text style={[{ width: col_ratio[0] }]}>{tr_item.title}</Text>
           <Text style={[{ width: col_ratio[1] }]}>{tr_item.amount}</Text>
           <Text style={[{ width: col_ratio[2] }]}>
             {SamDateTime.formatViaLib(tr_item.created_at, 'DD MMM, h:mm A')}
           </Text>
-          <Text></Text>
+          <Text style={[{ width: col_ratio[3] }]}></Text>
         </View>
       );
     });
@@ -117,7 +117,8 @@ class ListCategories extends AbstractScreen {
     }
 
     let a_month_earlier = SamDateTime.addInterval(-30, 'day') || new Date();
-    let column_ratio: any[] = ['25%', '20%', '40%', '10%'];
+    let column_ratio: any[] = ['40%', '25%', '35%'];
+    const headers = ['Name', 'Amount', 'Count'];
     return (
       <SafeAreaView style={styles.safe}>
         <KeyboardAvoidingView style={styles.keyboardAvoid}>
@@ -144,7 +145,16 @@ class ListCategories extends AbstractScreen {
           <View style={[styles.flex]}>
             <Text style={[styles.h5, { width: column_ratio[0] }]}>Name</Text>
             <Text style={[styles.h5, { width: column_ratio[1] }]}>Amount</Text>
-            <Text style={[styles.h5, { width: column_ratio[2] }]}>Time</Text>
+            <Text style={[styles.h5, { width: column_ratio[2] }]}>Count</Text>
+          </View>
+
+          <View style={[styles.flexContainer, { paddingTop: 10 }]}>
+            {headers.map((cell_data, i) => (
+              <View key={i}
+                style={[styles.border, { width: column_ratio[i], padding: 4 }]}>
+                <Text style={[styles.headerText]}>{cell_data}</Text>
+              </View>
+            ))}
           </View>
           <ScrollView
             keyboardShouldPersistTaps="handled"
@@ -162,41 +172,28 @@ class ListCategories extends AbstractScreen {
                       style={[styles.listItemText, { width: column_ratio[1] }]}>
                       {cat_item.total_amount}
                     </Text>
-                    <Text
-                      style={[styles.listItemText, { width: column_ratio[2] }]}>
-                      {SamDateTime.formatViaLib(
-                        cat_item.created_at,
-                        'DD MMM, h:mm A',
+                    <View style={[{flex:1, paddingRight: 5}]}>
+                      {cat_item.trans_count ? (
+                        <Pressable
+                          style={[ styles.border, { paddingHorizontal: 5, alignSelf:'flex-end' }]}
+                          onPress={() => {
+                            obj_it.showChildren(cat_item);
+                          }}>
+                          <Text style={{}}>{cat_item.trans_count}</Text>
+                        </Pressable>
+                      ) : (
+                        <Pressable
+                          style={[ styles.border, { paddingRight: 5, alignSelf:'flex-end' }]}
+                          onPress={() => obj_it.deleleCategory(cat_item, index)}>
+                          <IconSvg
+                            icon={SvgIcons.trash_icon}
+                            color="red"
+                            size={24}
+                            style={{ alignSelf: 'flex-end', border: 1, borderColor: 'white' }}
+                          />
+                        </Pressable>                      
                       )}
-                    </Text>
-                    {cat_item.trans_count ? (
-                      <Pressable
-                        style={[
-                          {
-                            paddingHorizontal: 5,
-                            alignItems: 'flex-end',
-                            padding: 0,
-                            borderWidth: 2,
-                            borderColor: 'blue',
-                          },
-                        ]}
-                        onPress={() => {
-                          obj_it.showChildren(cat_item);
-                        }}>
-                        <Text>{cat_item.trans_count}</Text>
-                      </Pressable>
-                    ) : (
-                      <Pressable
-                        style={[{ alignItems: 'flex-end' }]}
-                        onPress={() => obj_it.deleleCategory(cat_item, index)}>
-                        <IconSvg
-                          icon={SvgIcons.trash_icon}
-                          color="red"
-                          size={24}
-                          style={{ border: 1, borderColor: 'white' }}
-                        />
-                      </Pressable>
-                    )}
+                    </View>
                   </View>
                   {cat_item.show_children &&
                     cat_item.transaction_list.length ? (

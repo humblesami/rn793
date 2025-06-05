@@ -13,6 +13,7 @@ export default class AbstractScreen extends Component<PropsType, BaseState> {
       data_loading: '',
       editMode: 0,
       load_count: 0,
+      touch_count: 0,
       page_data: {
         record_count: 0,
         offset: 0,

@@ -32,25 +32,25 @@ const SampleScreen = () => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
           {Array.from({ length: 30 }).map((_, i) => (
-            <View key={i} style={styles.item}>
+            <View key={i} style={styles.listItem}>
               {
                 i == 5 ? 
                 <>
                   <Text style={styles.h5}>Nested Scrolls</Text>
                   <ScrollView
                   style={{borderWidth: 2, borderColor: 'green' ,maxHeight: 200}}
-                  contentContainerStyle={styles.scrollContent}
+                  contentContainerStyle={{}}
                   nestedScrollEnabled={true}
                   keyboardShouldPersistTaps="handled"
                   showsVerticalScrollIndicator={false}>
                     {Array.from({ length: 20 }).map((_, i1) => (
-                      <View key={i1} style={styles.item}>
+                      <View key={i1} style={styles.listItem}>
                         {
                           <Text>Scrollable Item {i1 + 1}</Text>
                         }                      
                       </View>
                     ))}
-                    <TextInput style={styles.border}/>
+                    <TextInput/>
                   </ScrollView>
                 </> :
                 <Text>Scrollable Item {i + 1}</Text>
