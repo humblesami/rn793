@@ -61,8 +61,7 @@ async function setupSchema() {
 			description TEXT,
 			amount FLOAT NOT NULL,
 			date_time DATETIME NOT NULL,
-			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		);
 	`);
 
@@ -73,8 +72,7 @@ async function setupSchema() {
 			trans_count float default 0,
 			total_amount float default 0,			
 			parent_id INTEGER DEFAULT NULL,
-			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		);
 	`);
 
@@ -117,8 +115,7 @@ async function setupSchema() {
 				trans_count = trans_count + 1,
 				total_amount = total_amount + (
 					SELECT amount FROM transactions WHERE id = NEW.transaction_id
-				),
-				updated_at = CURRENT_TIMESTAMP
+				)
 			WHERE id = NEW.category_id;
 		END;
 	`);
@@ -132,8 +129,7 @@ async function setupSchema() {
 				trans_count = trans_count - 1,
 				total_amount = total_amount - (
 					SELECT amount FROM transactions WHERE id = OLD.transaction_id
-				),
-				updated_at = CURRENT_TIMESTAMP
+				)
 			WHERE id = OLD.category_id;
 		END;
 	`);

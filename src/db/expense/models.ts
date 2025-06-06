@@ -1,6 +1,5 @@
 class DbModel {
   id = 0;
-  updated_at = new Date();
   created_at = new Date();
 }
 

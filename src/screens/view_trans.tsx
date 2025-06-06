@@ -404,7 +404,6 @@ class TransactionsListUtils {
     caller_ob.setState({ data_loading: 'Updating Transactions' });
     delete row_data['created_at'];
     delete row_data['related_categories'];
-    row_data['updated_at'] = new Date().getTime();
     const res = await ExpenseDb.updateRecords('transactions', row_data, [
       ['id', '=', row_data.id],
     ]);
