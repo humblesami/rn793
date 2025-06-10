@@ -1,7 +1,6 @@
-import { StyleSheet, useColorScheme } from 'react-native';
-const colorScheme = useColorScheme;
+import { StyleSheet } from 'react-native';
 const colors = {
-  itemBorder: colorScheme == 'dark' ? 'white': '#ccc',
+  itemBorder: 'white',
 }
 
 const styles = StyleSheet.create({
@@ -96,7 +95,7 @@ const styles = StyleSheet.create({
   },
   pressableItem: {
     borderColor: colors.itemBorder,
-    borderWidth: 2,
+    borderBottomWidth: 1,
     borderRadius: 5,
     marginBottom: 5,
     padding: 5,

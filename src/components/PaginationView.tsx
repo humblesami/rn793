@@ -1,25 +1,12 @@
-import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  Button,
-  View,
-  ViewStyle,
-} from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, Text, TextInput, Button, View, ViewStyle } from 'react-native';
 
-type PagingProps = {
+type PagingAttrs = {
   offset: number;
   given_limit: number;
   total_records: number;
   onLimitChanged: Function;
   onStartIndexChanged: Function;
-};
-
-type PagingState = {
-  isLoading: boolean;
-  page_str: string;
-  limit_str: string;
 };
 
 type Props = {
@@ -50,159 +37,134 @@ function FlexView({ children, style }: Props) {
   return <View style={[styles.defaultStyle, style]}>{children}</View>;
 }
 
-export default class PaginationView extends React.Component<
-  PagingProps,
-  PagingState
-> {
-  private page_count = 0;
-  private total_records = 0;
-  private offset: number = 0;
-  private page_number: number = 1;
-  private description: string = '';
-  constructor(props: PagingProps) {
-    super(props);
-    this.state = {
-      page_str:
-        '' + (Math.floor(this.props.offset / this.props.given_limit) + 1),
-      isLoading: false,
-      limit_str: '' + props.given_limit,
+function PaginationView(props: PagingAttrs) {
+  // Instance variables as refs
+  const page_count = useRef(0);
+  const total_records = useRef(props.total_records || 0);
+  const offset = useRef(props.offset);
+  const page_number = useRef(Math.floor(props.offset / props.given_limit) + 1);
+  const description = useRef('');
+  const timeOutHolder = useRef<NodeJS.Timeout | null>(null);
+
+  // State
+  const [page_str, setPageStr] = useState('' + page_number.current);
+  const [limit_str, setLimitStr] = useState('' + props.given_limit);
+
+  // Update details on props/state change
+  const updateDetails = () => {
+    let on_page = props.given_limit;
+    offset.current = props.offset;
+    total_records.current = props.total_records;
+    page_number.current = Math.floor(offset.current / on_page) + 1;
+    page_count.current = Math.ceil(props.total_records / on_page);
+    const till = Math.min(page_number.current * on_page, total_records.current)
+    description.current = offset.current + 1 + ' to ' + till;
+    description.current += ' from ' + total_records.current;
+  };
+
+  // Sync state with props changes
+  useEffect(() => {
+    setPageStr('' + (Math.floor(props.offset / props.given_limit) + 1));
+    setLimitStr('' + props.given_limit);
+    total_records.current = props.total_records || 0;
+    offset.current = props.offset;
+    // eslint-disable-next-line
+  }, [props.offset, props.given_limit, props.total_records]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeOutHolder.current) clearTimeout(timeOutHolder.current);
     };
-    this.total_records = props.total_records || 0;
-    //console.log('Constructor called');
-  }
+  }, []);
 
-  updateDetails() {
-    let on_page = this.props.given_limit;
-    this.offset = this.props.offset;
-    this.total_records = this.props.total_records;
-    this.page_number = Math.floor(this.offset / on_page) + 1;
-    this.page_count = Math.ceil(this.props.total_records / on_page);
-    this.description =
-      this.offset +
-      1 +
-      ' to ' +
-      Math.min(this.page_number * on_page, this.total_records);
-    this.description += ' from ' + this.total_records;
-  }
+  // Page navigation handlers
+  const onNextPage = () => changePageNumber('' + (page_number.current + 1));
+  const onPreviousPage = () => changePageNumber('' + (page_number.current - 1));
+  const gotoFirstPage = () => changePageNumber('1');
+  const gotoLastPage = () => changePageNumber('' + page_count.current);
 
-  onNextPage() {
-    this.changePageNumber('' + (this.page_number + 1));
-  }
-  onPreviousPage() {
-    this.changePageNumber('' + (this.page_number - 1));
-  }
-  gotoFirstPage() {
-    this.changePageNumber('' + 1);
-  }
-  gotoLastPage() {
-    this.changePageNumber('' + this.page_count);
-  }
-
-  async changePageNumber(txt: string) {
+  // Change page number
+  const changePageNumber = (txt: string) => {
     if (!txt) {
-      this.setState({ page_str: '' });
+      setPageStr('');
       return;
     }
     let res = parseInt(txt);
-    if (res < 1) {
-      res = 1;
-    }
-    if (res > this.page_count) {
-      res = this.page_count;
-    }
-    let obj_it = this;
-    this.setState({ page_str: '' + res });
-    clearTimeout(obj_it.timeOutHolder);
-    if (this.page_number != res) {
-      obj_it.timeOutHolder = setTimeout(async () => {
-        obj_it.page_number = res;
-        obj_it.offset = (res - 1) * obj_it.props.given_limit;
-        obj_it.props.onStartIndexChanged(obj_it.offset);
+    if (isNaN(res)) res = 1;
+    if (res < 1) res = 1;
+    if (res > page_count.current) res = page_count.current;
+    setPageStr('' + res);
+    if (timeOutHolder.current) clearTimeout(timeOutHolder.current);
+    if (page_number.current !== res) {
+      timeOutHolder.current = setTimeout(() => {
+        page_number.current = res;
+        offset.current = (res - 1) * props.given_limit;
+        props.onStartIndexChanged(offset.current);
       }, 300);
     }
-  }
+  };
 
-  timeOutHolder: NodeJS.Timeout = setTimeout(() => { }, 1);
-
-  async changeLimit(txt: string) {
+  // Change limit
+  const changeLimit = (txt: string) => {
     if (!txt) {
-      this.setState({ limit_str: '' });
+      setLimitStr('');
       return;
     }
     let res = parseInt(txt);
-    if (res > this.total_records) {
-      res = this.total_records;
-    }
-    if (res < 1) {
-      res = 1;
-    }
-    let obj_it = this;
-    this.setState({ limit_str: '' + res });
-    clearTimeout(obj_it.timeOutHolder);
-    if (this.props.given_limit != res) {
-      obj_it.timeOutHolder = setTimeout(async () => {
-        obj_it.offset = 0;
-        obj_it.props.onLimitChanged(obj_it.offset, res);
+    if (isNaN(res)) res = 1;
+    else if (res > total_records.current) res = total_records.current;
+    else res = 1;
+    setLimitStr('' + res);
+    if (timeOutHolder.current) clearTimeout(timeOutHolder.current);
+    if (props.given_limit !== res) {
+      timeOutHolder.current = setTimeout(() => {
+        offset.current = 0;
+        props.onLimitChanged(offset.current, res);
       }, 300);
     }
-  }
+  };
 
-  render() {
-    let obj_it = this;
-    this.updateDetails();
-    // if(!this.total_records){
-    //     this.description = 'No records found';
-    //     return(
-    //         <View style={{paddingBottom: 10, paddingTop: 10}}>
-    //             <Text style={{textAlign: 'center'}}>{this.description}</Text>
-    //         </View>
-    //     );
-    // }
-    return (
-      <View style={{ paddingBottom: 10, paddingTop: 10 }}>
-        <FlexView style={{ padding: 5, justifyContent: 'center' }}>
-          <View style={[styles.item, {}]}>
-            <Button onPress={() => this.gotoFirstPage()} title="First" />
-          </View>
-          <View style={[styles.item, {}]}>
-            <Button onPress={() => this.onPreviousPage()} title="Prev" />
-          </View>
-          <View style={[styles.item, {}]}>
-            <FlexView style={{ justifyContent: 'center' }}>
-              <View style={{}}>
-                <TextInput
-                  style={styles.input}
-                  value={this.state.page_str}
-                  keyboardType="numeric"
-                  onChangeText={(txt: string) => {
-                    obj_it.changePageNumber(txt);
-                  }}
-                />
-              </View>
-              <Text> / {this.page_count}</Text>
-            </FlexView>
-          </View>
-          <View style={[styles.item, {}]}>
-            <Button onPress={() => this.onNextPage()} title="Next" />
-          </View>
-          <View style={[styles.item, {}]}>
-            <Button onPress={() => this.gotoLastPage()} title="Last" />
-          </View>
-          <View style={[styles.item, {}]}>
-            <TextInput
-              style={styles.input}
-              value={this.state.limit_str}
-              keyboardType="numeric"
-              onChangeText={(txt: string) => {
-                obj_it.changeLimit(txt);
-              }}
-            />
-          </View>
-        </FlexView>
-        <View>
-          <Text style={{ textAlign: 'center' }}>{this.description}</Text>
+  updateDetails();
+
+  return (
+    <View style={{ paddingBottom: 10, paddingTop: 10 }}>
+      <FlexView style={{ padding: 5, justifyContent: 'center' }}>
+        <View style={styles.item}>
+          <Button onPress={gotoFirstPage} title="First" />
         </View>
+        <View style={styles.item}>
+          <Button onPress={onPreviousPage} title="Prev" />
+        </View>
+        <View style={styles.item}>
+          <FlexView style={{ justifyContent: 'center' }}>
+            <View>
+              <TextInput
+                style={styles.input} value={page_str}
+                keyboardType="numeric" onChangeText={changePageNumber}
+              />
+            </View>
+            <Text> / {page_count.current}</Text>
+          </FlexView>
+        </View>
+        <View style={styles.item}>
+          <Button onPress={onNextPage} title="Next" />
+        </View>
+        <View style={styles.item}>
+          <Button onPress={gotoLastPage} title="Last" />
+        </View>
+        <View style={styles.item}>
+          <TextInput
+            style={styles.input} value={limit_str}
+            keyboardType="numeric" onChangeText={changeLimit}
+          />
+        </View>
+      </FlexView>
+      <View>
+        <Text style={{ textAlign: 'center' }}>{description.current}</Text>
       </View>
-    );
-  }
-}
+    </View>
+  );
+};
+
+export default PaginationView;

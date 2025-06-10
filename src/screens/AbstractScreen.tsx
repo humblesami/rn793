@@ -118,9 +118,8 @@ export default class AbstractScreen extends Component<PropsType, BaseState> {
   _renderLoader() {
     let obj_it = this;
     if (this.state.data_loading && this.state.data_loading != 'done') {
-      return (<PopupOverlay message={this.state.data_loading}
-        onHide={() => { obj_it.setState({ data_loading: '' }) }}
-        visible={true} />)
+      return (<PopupOverlay children={null} message={this.state.data_loading}
+        onHide={() => { obj_it.setState({ data_loading: '' }) }} />)
     } else {
       <></>
     }

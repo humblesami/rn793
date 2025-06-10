@@ -167,7 +167,7 @@ class ListTransactions extends AbstractScreen {
                 onPress={() => obj_it.service.deleteRecord(obj_it, editRow)}
                 title="Delete"
               />
-              {__DEV__ && <CompButton
+              {<CompButton
                 onPress={() => obj_it.service.duplicateRecord(obj_it, editRow)}
                 title="Duplicate"
               />}
@@ -286,8 +286,7 @@ class ListTransactions extends AbstractScreen {
 
         <View style={[styles.flexContainer, { paddingTop: 10 }]}>
           {obj_it.headers.map((cell_data, i) => (
-            <View
-              key={i}
+            <View key={i}
               style={[styles.border, { width: obj_it.col_ratio[i], padding: 4 }]}>
               <Text style={[styles.headerText]}>{cell_data}</Text>
             </View>

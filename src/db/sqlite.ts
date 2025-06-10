@@ -133,6 +133,21 @@ async function setupSchema() {
 			WHERE id = OLD.category_id;
 		END;
 	`);
+
+	let cats = await executeQuery(`select count(*) as cnt from categories`);
+	let data_exists = cats.rows.length && cats.rows[0].cnt;
+	if(!data_exists){
+		await executeQuery(`
+			insert into categories (title) values		
+			('Health'),('Doctors'),('Hospitals'),('Medicine')
+			,('Food'),('Vegetables'), ('Fruits')
+			,('Clothing'),('Travelling'),('Education')
+			,('Phone'),('Electronics'),('Repairs'), ('Car')	
+			,('Kids'),('Snacks'),('Drinks'),('Cookies')
+			,('Housing'),('Grossory'),('Assets'),('Investment')		
+			,('Entertainment'),('Pets'),('Sports'),('Gifts'),('Guests'),('Donations')
+		`);
+	}
 }
 
 export async function seedData() { }

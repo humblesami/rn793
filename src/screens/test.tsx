@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -7,11 +7,14 @@ import {
   Platform,
   KeyboardAvoidingView,
   TextInput,
+  Button,
 } from 'react-native';
-import PaginationView from '../components/PaginationView';
 import { styles } from '../components/ComponentStyles';
+import FlexView from '../components/FlexView';
+import PopupOverlay from '../components/Overlay';
 
 const SampleScreen = () => {
+  const [data_loading, setDataLoading] = useState('')
   const obj_it = {
     page_data: {
       offset: 0,
@@ -26,9 +29,24 @@ const SampleScreen = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'android' ? 90 : 0}>
 
+          <FlexView>
+          <Button onPress={()=>{
+            setDataLoading('Loading data')
+          }} title='Show loader'/>
+          <Button onPress={()=>{
+            setDataLoading('')
+          }} title='Hide loader'/>
+        </FlexView>
+
+        {
+          data_loading ? <PopupOverlay children={null} 
+        onHide={() => { setDataLoading('') }}
+        message={data_loading} /> : <></>
+        }
+         
+
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          
+          contentContainerStyle={styles.scrollContent}          
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
           {Array.from({ length: 30 }).map((_, i) => (
@@ -45,9 +63,7 @@ const SampleScreen = () => {
                   showsVerticalScrollIndicator={false}>
                     {Array.from({ length: 20 }).map((_, i1) => (
                       <View key={i1} style={styles.listItem}>
-                        {
-                          <Text>Scrollable Item {i1 + 1}</Text>
-                        }                      
+                        { <Text>Scrollable Item {i1 + 1}</Text> }
                       </View>
                     ))}
                     <TextInput/>

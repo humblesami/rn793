@@ -23,9 +23,7 @@ class ListCategories extends AbstractScreen {
     //console.log(89003, 'const')
     super(props, 'list_categories');
     this.page_data = {
-      record_count: 0,
-      offset: 0,
-      per_page: 14,
+      record_count: 0,offset: 0, per_page: 10,
     };
     this.state = {
       ...this.state,
@@ -122,10 +120,7 @@ class ListCategories extends AbstractScreen {
               obj_it.page_data.offset = off_set;
               obj_it.fetchMyData();
             }}
-            onLimitChanged={async (
-              off_set: number,
-              records_on_page: number,
-            ) => {
+            onLimitChanged={async ( off_set: number, records_on_page: number) => {
               obj_it.page_data.per_page = records_on_page;
               obj_it.page_data.offset = off_set;
               obj_it.fetchMyData();
