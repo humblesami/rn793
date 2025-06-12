@@ -6,11 +6,11 @@ import { styles } from './ComponentStyles';
 
 type IconButtonProps = {
   style?: StyleProp<ViewStyle>;
-  icon: Record<string, string>;
-  color: string;
-  title: string;
+  icon?: Record<string, string>;
+  color?: string;
+  title?: string;
   onPress?: (event: GestureResponderEvent) => void;
-  size: number;
+  size?: number;
 };
 
 function IconCircle({

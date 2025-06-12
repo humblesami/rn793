@@ -5,9 +5,9 @@ import { SvgIcons } from '../icons';
 
 type IconButtonProps = {
   style?: StyleProp<ViewStyle>;
-  icon: Record<string, string>;
-  color: string;
-  size: number;
+  icon?: Record<string, string>;
+  color?: string;
+  size?: number;
 };
 
 function IconSvg({
