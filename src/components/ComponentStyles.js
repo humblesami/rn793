@@ -1,22 +1,33 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Appearance } from 'react-native';
+const colorTheme = Appearance.getColorScheme() || 'light';
+console.log(colorTheme)
 const colors = {
-  itemBorder: 'white',
+  itemBorder: colorTheme == 'dark' ? '#fff': '#aaa',
 }
 
 const styles = StyleSheet.create({
+  border: {
+    borderRadius: 3,
+    borderColor: colors.itemBorder,
+    borderWidth: 1,
+  }, 
+  borderBottom:{
+    borderRadius: 3,
+    borderColor: colors.itemBorder,
+    borderBottomWidth: 1,
+  },
+  circleBorder: {
+    borderRadius: 50
+  },
   rowContainer: {
     flex: 1,
     padding: 2,
     width: '98%',
+    backgroundColor: colorTheme == 'dark' ? '#fff': '#000',
     paddingLeft: 10,
     marginBottom: 5,
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  border: {
-    borderRadius: 3,
-    borderColor: '#ccc',
-    borderWidth: 1,
   },
   loader: {
     position: 'absolute',
@@ -59,6 +70,7 @@ const styles = StyleSheet.create({
   },
 
   flex: {
+    padding: 5,
     flexDirection: 'row',
   },
   flexSpaceBetween: {
@@ -81,12 +93,10 @@ const styles = StyleSheet.create({
     borderColor: colors.itemBorder,
   },
   listItem: {
-    padding: 6,
+    paddingVertical: 4,
     borderRadius: 4,
-    borderWidth: 1,
     maxWidth: '100%',
     marginBottom: 2,
-    borderColor: colors.itemBorder,
   },
   item: {
     padding: 16,

@@ -129,36 +129,22 @@ function PaginationView(props: PagingAttrs) {
 
   return (
     <View style={{ paddingBottom: 10, paddingTop: 10 }}>
-      <FlexView style={{ padding: 5, justifyContent: 'center' }}>
-        <View style={styles.item}>
-          <Button onPress={gotoFirstPage} title="First" />
-        </View>
-        <View style={styles.item}>
-          <Button onPress={onPreviousPage} title="Prev" />
-        </View>
-        <View style={styles.item}>
-          <FlexView style={{ justifyContent: 'center' }}>
-            <View>
-              <TextInput
-                style={styles.input} value={page_str}
-                keyboardType="numeric" onChangeText={changePageNumber}
-              />
-            </View>
-            <Text> / {page_count.current}</Text>
-          </FlexView>
-        </View>
-        <View style={styles.item}>
-          <Button onPress={onNextPage} title="Next" />
-        </View>
-        <View style={styles.item}>
-          <Button onPress={gotoLastPage} title="Last" />
-        </View>
-        <View style={styles.item}>
+      <FlexView style={{ justifyContent: 'space-between' }}>
+        <Button onPress={gotoFirstPage} title="First" />
+        <Button onPress={onPreviousPage} title="Prev" />
+        <FlexView style={{ justifyContent: 'center' }}>
           <TextInput
-            style={styles.input} value={limit_str}
-            keyboardType="numeric" onChangeText={changeLimit}
+            style={styles.input} value={page_str}
+            keyboardType="numeric" onChangeText={changePageNumber}
           />
-        </View>
+          <Text> / {page_count.current} </Text>
+        </FlexView>
+        <Button onPress={onNextPage} title="Next" />
+        <Button onPress={gotoLastPage} title="Last" />
+        <TextInput
+          style={styles.input} value={limit_str}
+          keyboardType="numeric" onChangeText={changeLimit}
+        />
       </FlexView>
       <View>
         <Text style={{ textAlign: 'center' }}>{description.current}</Text>

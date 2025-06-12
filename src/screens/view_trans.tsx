@@ -21,6 +21,7 @@ import { IconButton } from '../components/IconButton';
 import { SvgIcons } from '../icons';
 import { Toggler } from '../components/Switch';
 import PopupOverlay from '../components/Overlay';
+import { IconCircle } from '../components/IconCircle';
 
 
 class ListTransactions extends AbstractScreen {
@@ -207,7 +208,7 @@ class ListTransactions extends AbstractScreen {
         showsVerticalScrollIndicator={false}>
         {obj_it.state.objects_list.map((item: any, key: any) => (
           <View key={key}>
-            <View style={[styles.flexContainer, styles.listItem]}>
+            <View style={[styles.flexContainer, styles.listItem, styles.borderBottom]}>
               <View style={[styles.editRowCell, { width: obj_it.col_ratio[0] }]}>
                 <Text style={[styles.bold]}>{item.amount}</Text>
               </View>
@@ -225,7 +226,7 @@ class ListTransactions extends AbstractScreen {
                 </Text>
               </View>
 
-              <View style={{ width: obj_it.col_ratio[3] }}>
+              <View style={{ width: obj_it.col_ratio[3], flex:1, alignContent:'center' }}>
                 <IconButton
                   icon={SvgIcons.edit_icon}
                   onPress={() => obj_it.callEditing(item)}
@@ -237,10 +238,7 @@ class ListTransactions extends AbstractScreen {
                 {item.related_categories.map(function (item: any, key: any) {
                   return (
                     <View key={key}
-                      style={[styles.border, {
-                        padding: 3, marginRight: 1,
-                        marginBottom: 1, borderWidth: 1,
-                      }]}>
+                      style={[styles.border, {padding: 3, marginRight: 1, marginBottom: 2}]}>
                       <Text>{item.title}  </Text>
                     </View>
                   );
@@ -273,7 +271,7 @@ class ListTransactions extends AbstractScreen {
         />
         {/* <DateTimeSelector onChangeDateTime={() => { }} /> */}
         <FlexView>
-          <CompButton onPress={() => obj_it.callEditing()} title="Add New" />
+          <IconCircle icon={SvgIcons.plus_icon} title='Add' onPress={() => obj_it.callEditing()} />
 
           <FlexView>
             <Text>Show Categries</Text>

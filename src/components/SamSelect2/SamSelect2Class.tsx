@@ -263,7 +263,7 @@ class SamSelect2Class extends Component<SamSelect2Props, Select2State> {
       Alert.alert('Not valid selectedItems');
       return <></>;
     }
-    let selected_istyle = Object.assign({}, s2Styles.selectedItemStyle);
+    let selected_istyle = Object.assign({}, s2Styles.selectedItem);
     let del_btn_style = this.attributes.styling.deleteButton;
 
     if (!this.attributes.multiple) {
@@ -272,7 +272,7 @@ class SamSelect2Class extends Component<SamSelect2Props, Select2State> {
       }
       return (
         <Pressable
-          style={[s2Styles.selectedItemStyle, s2Styles.singleSelectedItemStyle]}
+          style={[s2Styles.selectedItem, s2Styles.singleSelectedItem]}
           onPress={() => obj_it.signleSelectionPressed(selected_lis)}>
           <Text style={{ color: '#555' }}>
             {selected_lis[0][this.attributes.displayField]}

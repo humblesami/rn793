@@ -23,7 +23,7 @@ class ListCategories extends AbstractScreen {
     //console.log(89003, 'const')
     super(props, 'list_categories');
     this.page_data = {
-      record_count: 0,offset: 0, per_page: 10,
+      record_count: 0, offset: 0, per_page: 10,
     };
     this.state = {
       ...this.state,
@@ -90,7 +90,7 @@ class ListCategories extends AbstractScreen {
           style={[styles.border, styles.row, { padding: 2, borderColor: 'green' }]}
           key={index}>
           <Text style={[{ width: col_ratio[0] }]}>{tr_item.title}</Text>
-          <Text style={[{ width: col_ratio[1] }]}>{tr_item.amount}</Text>
+          <Text style={[{ width: col_ratio[1] }]}>{tr_item.amount || '0'}</Text>
           <Text style={[{ width: col_ratio[2] }]}>
             {SamDateTime.formatViaLib(tr_item.created_at, 'DD MMM, h:mm A')}
           </Text>
@@ -120,7 +120,7 @@ class ListCategories extends AbstractScreen {
               obj_it.page_data.offset = off_set;
               obj_it.fetchMyData();
             }}
-            onLimitChanged={async ( off_set: number, records_on_page: number) => {
+            onLimitChanged={async (off_set: number, records_on_page: number) => {
               obj_it.page_data.per_page = records_on_page;
               obj_it.page_data.offset = off_set;
               obj_it.fetchMyData();
@@ -149,26 +149,22 @@ class ListCategories extends AbstractScreen {
                     </Text>
                     <Text
                       style={[styles.listItemText, { width: column_ratio[1] }]}>
-                      {cat_item.total_amount}
+                      {cat_item.total_amount || '0'}
                     </Text>
                     <View style={[{ flex: 1, paddingRight: 5 }]}>
                       {cat_item.trans_count ? (
                         <Pressable
                           style={[styles.border, { paddingHorizontal: 5, alignSelf: 'flex-end' }]}
-                          onPress={() => {
-                            obj_it.showChildren(cat_item);
-                          }}>
+                          onPress={() => { obj_it.showChildren(cat_item) }}>
                           <Text style={{}}>{cat_item.trans_count}</Text>
                         </Pressable>
                       ) : (
                         <Pressable
-                          style={[styles.border, { paddingRight: 5, alignSelf: 'flex-end' }]}
+                          style={[styles.border, { alignSelf: 'flex-end' }]}
                           onPress={() => obj_it.deleleCategory(cat_item)}>
                           <IconSvg
                             icon={SvgIcons.trash_icon}
-                            color="red"
-                            size={24}
-                            style={{ alignSelf: 'flex-end', border: 1, borderColor: 'white' }}
+                            color="red" size={24}
                           />
                         </Pressable>
                       )}

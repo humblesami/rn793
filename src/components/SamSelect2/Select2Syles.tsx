@@ -14,7 +14,7 @@ const s2Styles = StyleSheet.create({
     width:'80%',
     backgroundColor: 'red',
   },
-  selectedItemStyle: {
+  selectedItem: {
     paddingHorizontal: 5,
     paddingVertical: 3,
     marginHorizontal: 3,
@@ -29,7 +29,7 @@ const s2Styles = StyleSheet.create({
     flexDirection: 'row',
     flexBasis: 'auto',
   },
-  singleSelectedItemStyle: {
+  singleSelectedItem: {
     flex: 0,
     paddingHorizontal: 10,
     justifyContent: 'space-between',
