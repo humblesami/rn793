@@ -48,7 +48,7 @@ interface Select2State {
   defaultItems: any[];
   searchedItems: any[];
   selectedItems: any[];
-  searchText: string;
+  searchString: string;
 }
 
 class SamSelect2Class extends Component<SamSelect2Props, Select2State> {
@@ -61,7 +61,7 @@ class SamSelect2Class extends Component<SamSelect2Props, Select2State> {
       input_focused: false,
       defaultItems: props.defaultItems,
       selectedItems: props.selectedItems,
-      searchText: props.searchText || '',
+      searchString: props.searchText || '',
     };
     this.attributes = props;
   }
@@ -92,8 +92,9 @@ class SamSelect2Class extends Component<SamSelect2Props, Select2State> {
       console.log(16, 'No updates at all', from_point);
       return;
     }
-    if (updated_keys.length == 1 && updated_keys[0] == 'must_do')
+    if (updated_keys.length == 1 && updated_keys[0] == 'must_do') {
       state_updates = {};
+    }
     super.setState(state_updates, function () {
       calllback();
     });
@@ -172,29 +173,26 @@ class SamSelect2Class extends Component<SamSelect2Props, Select2State> {
       this.state.defaultItems,
       display_field,
     );
-    let local_updates: Record<string, any> = { must_do: true };
-
-    if (this.state.searchText) local_updates.searchText = '';
-    if (this.state.newTag) local_updates.newTag = '';
-    if (!this.state.input_focused) local_updates.input_focused = true;
-    if (this.state.searchedItems != filterd_options)
-      local_updates.searchedItems = filterd_options;
-    if (this.state.selectedItems != filterd_options)
-      local_updates.searchedItems = filterd_options;
-
-    let updates_now = { ...temp_updates, ...local_updates };
-    this.setTheState(updates_now, from_point, function () {
+    let updates_now: Record<string, any> = { 
+      ...temp_updates, must_do: true, searchString: '', newTag: '',
+      input_focused: true, searchedItems: filterd_options
+    };
+    this.setTheState(updates_now, from_point, function(){
       obj_it.setInputText('');
     });
   }
 
   async onInputFocused() {
     if (!this.state.input_focused) {
-      let res = await this.searchInList(this.state.searchText, {
+      let res = await this.searchInList(this.state.searchString, {
         input_focused: true,
       });
       this.setTheState(res);
     }
+  }
+
+  async onInputBlurred(){
+    this.setTheState({input_focused: false});
   }
 
   hideListItems() {
@@ -202,8 +200,12 @@ class SamSelect2Class extends Component<SamSelect2Props, Select2State> {
   }
 
   last_kw = '';
-  async onInputTextChange(txt: string) {
+  async onInputTextChange(txt: string='') {
     if (txt == this.last_kw) {
+      return;
+    }
+    if(txt.startsWith(this.last_kw) && this.state.newTag) {
+      this.last_kw = txt;
       return;
     }
     this.last_kw = txt;
@@ -239,8 +241,8 @@ class SamSelect2Class extends Component<SamSelect2Props, Select2State> {
     let display_field = this.attributes.displayField;
     filtered_items = this.map_items(filtered_items, display_field);
     let local_updates = {
-      searchText: input_kw,
       newTag: tempNotMatched,
+      input_focused: tempNotMatched ? false: true,
       defaultItems: this.state.defaultItems,
     };
     if (!input_kw && !this.state.defaultItems.length) {
@@ -392,6 +394,7 @@ class SamSelect2Class extends Component<SamSelect2Props, Select2State> {
       },
       { key: 'onPressIn', val: async (txt: string) => obj_it.onInputFocused() },
       { key: 'onFocus', val: async (txt: string) => obj_it.onInputFocused() },
+      { key: 'onBlur', val: async (txt: string) => obj_it.onInputBlurred() },
       { key: 'placeholder', val: receivedTextProps.placeholder },
     ];
     let textProps: Record<string, any> = {};
@@ -399,7 +402,7 @@ class SamSelect2Class extends Component<SamSelect2Props, Select2State> {
       textProps[kv.key] = kv.val;
     });
     textProps['style'] = this.attributes.styling.input;
-    return <TextInput {...textProps} value={this.state.searchText} />;
+    return <TextInput {...textProps} />;
   }
 
   render() {
