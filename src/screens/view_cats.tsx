@@ -87,7 +87,7 @@ class ListCategories extends AbstractScreen {
     return cat_item.transaction_list.map((tr_item: any, index: number) => {
       return (
         <View
-          style={[styles.border, styles.row, { padding: 2, borderColor: 'green' }]}
+          style={[styles.borderBottom, styles.row, { padding: 5, borderColor: 'green' }]}
           key={index}>
           <Text style={[{ width: col_ratio[0] }]}>{tr_item.title}</Text>
           <Text style={[{ width: col_ratio[1] }]}>{tr_item.amount || '0'}</Text>

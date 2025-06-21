@@ -43,11 +43,11 @@ const s2Styles = StyleSheet.create({
   stlistItem: {
     padding: 8,
     flexDirection: 'row',
-    marginBottom: 4,
-    backgroundColor: '#bbb',
+    marginTop: 4,
+    backgroundColor: '#fff',
   },
   itemText: {
-    color: '#111',
+    color: '#15a',
   },
   pressed: {
     backgroundColor: 'blue',
