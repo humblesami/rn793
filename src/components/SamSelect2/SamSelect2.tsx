@@ -20,6 +20,7 @@ interface SamSelect2Props {
   multiple?: boolean; // Optional flag for multiple selection (defaults to true)
   prevent_create?: boolean; // Optional flag to prevent creating new items (defaults to false)
   displayField?: string; // Required field name to display for items
+  imageField?: string; // Required field name to display for items
   styling?: Styling; // Use the flexible Styling type
   events?: {
     onItemAdded?: (item: string, selection: any) => Promise<void>;
@@ -79,6 +80,7 @@ function SamSelect2({
   multiple = true,
   prevent_create = false,
   displayField = 'name',
+  imageField = '',
   search_kw = '',
   styling,
   events = {},
@@ -101,6 +103,7 @@ function SamSelect2({
     <SamSelect2Class
       selectedItems={selectedItems}
       multiple={multiple}
+      imageField={imageField}
       displayField={displayField}
       defaultItems={defaultItems}
       searchText={search_kw}

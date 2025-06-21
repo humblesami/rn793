@@ -10,6 +10,7 @@ import SimpleView from './screens/view_setup';
 import { SvgIcons } from './icons';
 import SampleScreen from './screens/test';
 import { useColorScheme } from 'react-native';
+import SampleApp from './screens/view_app';
 
 const Tab = createBottomTabNavigator();
 function get_tab_options(
@@ -61,7 +62,7 @@ function MainApp() {
         {__DEV__ && (
           <Tab.Screen
             name="Sample"
-            component={SampleScreen}
+            component={SampleApp}
             options={{
               tabBarIcon: () => <IconSvg icon={SvgIcons.tools_icon} />,
               tabBarLabel: 'Sample',

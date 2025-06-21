@@ -18,6 +18,7 @@ interface SamSelect2Props {
   multiple: boolean; // Optional flag for multiple selection (defaults to true)
   prevent_create: boolean; // Optional flag to prevent creating new items (defaults to false)
   displayField: string; // Required field name to display for items
+  imageField: string;
   styling: {
     container?: ViewStyle;
     item?: ViewStyle;
@@ -312,7 +313,7 @@ class SamSelect2Class extends Component<SamSelect2Props, Select2State> {
     );
   }
 
-  renderFlatList() {
+  render_list() {
     let obj_it = this;
     if (!this.state.input_focused) return;
     try {
@@ -336,11 +337,10 @@ class SamSelect2Class extends Component<SamSelect2Props, Select2State> {
             style={s2Styles.listContainer}>
             {filteredOptions.map((listItem, index) => (
               <Pressable
-                key={index}
+                key={index} style={[s2Styles.stlistItem]}
                 onPress={() => {
                   obj_it.onItemChosen(listItem);
-                }}
-                style={[s2Styles.stlistItem]}>
+              }}>
                 <Text style={s2Styles.itemText}>
                   {listItem[this.attributes.displayField]}
                 </Text>
@@ -403,15 +403,13 @@ class SamSelect2Class extends Component<SamSelect2Props, Select2State> {
   }
 
   render() {
+    console.log(89000233, 'rend', (new Date().getTime()));
     return (
       <View style={this.attributes.styling.container}>
         {this.render_selected_items()}
         {this.renderTextInput()}
-        {this.attributes.multiple || !this.state.selectedItems.length ? (
-          this.renderFlatList()
-        ) : (
-          <></>
-        )}
+        {this.attributes.multiple || !this.state.selectedItems.length ? ( this.render_list())
+        : ( <></> )}
       </View>
     );
   }

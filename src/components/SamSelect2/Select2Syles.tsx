@@ -42,6 +42,7 @@ const s2Styles = StyleSheet.create({
   },
   stlistItem: {
     padding: 8,
+    flexDirection: 'row',
     marginBottom: 4,
     backgroundColor: '#bbb',
   },
